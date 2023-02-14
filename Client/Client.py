@@ -4,21 +4,18 @@ import sys
 import time
 import os
 
-def createlist(newfilename):
-    path = f"./{newfilename}"
-    f = open('Files/list.txt', 'wb')
-    obj = os.scandir(path)
+def createlist():
+    path = ""
+    obj = os.scandir()
     files = []
     for entry in obj:
         if entry.is_dir() or entry.is_file():
-            f.write(f" - {entry.name}\n".encode())
             files.append(entry.name)
-    f.close()
     return files
 
 def chooseFileName(filename):
 
-    files = createlist('./Files/')
+    files = createlist()
     newFileName = filename
     index = 1
     try:
@@ -73,7 +70,6 @@ def dowload(socket, fileName):
         return
 
     newfilename = chooseFileName(fileName)
-    os.remove("./Files/list.txt")
 
     if newfilename != fileName :
         print("New name: ", newfilename)
