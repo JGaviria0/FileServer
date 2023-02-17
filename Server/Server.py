@@ -13,7 +13,7 @@ dicnames = {}
 actualname = {}
 
 def upload(fileName):
-    
+    #from: https://docs.python.org/es/3/library/base64.html 
     try: 
         message = socket.recv()
         f = open(f"Files/{fileName}", 'wb')
