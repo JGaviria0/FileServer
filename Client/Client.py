@@ -52,7 +52,7 @@ def upload(socket, fileName):
         socket.send(strng)
         f.close()
     except:
-        print("Error whith file, maybe doesn't exist or bad extention")
+        print("Error uploaading file, maybe it doesn't exist or you're using a wrong extention")
         return
 
     message = socket.recv()
@@ -81,12 +81,12 @@ def dowload(socket, fileName):
         f.write(ba)
         f.close()
         time.sleep(1)
-        message = f'{newfilename} Download succesfully'
+        message = f'{newfilename} Succesfull download'
         socket.send(message.encode())
-        print(f"{newfilename} Download succesfully")
+        print(f"{newfilename} Succesfull download")
 
     except: 
-        err = "Error download file name, An expected error"
+        err = "Error downloading file name, unexpected error"
         print(err)
         socket.send(err.encode())
 
@@ -109,7 +109,7 @@ def thelist(socket, fileName):
         # print( ba.decode())
 
     except: 
-        err = "Error download file name, An expected error"
+        err = "Error downloading file name, unexpected error"
         print(err)
         socket.send(err.encode())
 

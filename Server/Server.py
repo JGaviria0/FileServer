@@ -14,7 +14,7 @@ actualname = {}
 
 def upload(fileName):
     
-    # try: 
+    try: 
         message = socket.recv()
         f = open(f"Files/{fileName}", 'wb')
         ba = bytearray(base64.b64decode(message)) #decode the file
@@ -33,10 +33,10 @@ def upload(fileName):
         socket.send(f"File upload succesfully as {fileName}".encode())
         print(f"{fileName} upload succesfully")
 
-    # except: 
-    #     err = "Error upload file name, An expected error"
-    #     print(err)
-    #     socket.send(err.encode())
+    except: 
+        err = "Error uploading file name, unexpected error"
+        print(err)
+        socket.send(err.encode())
 
 
 def dowload(fileName):
@@ -50,7 +50,7 @@ def dowload(fileName):
         socket.send(strng)
         f.close()
     except:
-        print("Error with file, maybe doesn't exist or bad extention")
+        print("Error downloading file, maybe it doesn't exist or you are using a wrong extension")
         return
 
 def createlist(newfilename):
@@ -139,7 +139,7 @@ def main():
 
 
         if filename[0] == "upload":
-            socket.send(b"Try to upload the new file")
+            socket.send(b"Trying to upload the new file")
             upload(newfilename)
             continue
         
