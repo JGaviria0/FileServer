@@ -103,9 +103,10 @@ def thelist(socket, fileName):
 
     try: 
         message = socket.recv()
-        ba = base64.b64decode(message)
-        print("\n")
-        print( ba.decode())
+        print(message.decode())
+        # ba = base64.b64decode(message)
+        # print("\n")
+        # print( ba.decode())
 
     except: 
         err = "Error download file name, An expected error"
@@ -141,5 +142,5 @@ def main():
         thelist(socket, fileName)
         return
 
-    print("You don't use the correct sintax")
+    print("You didn't use the correct sintax")
 main()
