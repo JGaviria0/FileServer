@@ -3,6 +3,14 @@ import zmq
 import base64
 import os
 import hashlib
+import sys
+from dotenv import load_dotenv
+
+load_dotenv()
+PRINCIPAL_PATH = os.getenv('PRINCIPAL_PATH')
+BUF_SIZE = os.getenv('BUF_SIZE')
+sys.path.insert(0, PRINCIPAL_PATH)
+from util import hashing
 
 # From: https://zeromq.org/get-started/?language=python&library=pyzmq#
 context = zmq.Context()
@@ -17,8 +25,8 @@ def upload(fileName):
     try: 
         message = socket.recv()
         f = open(f"Files/{fileName}", 'wb')
-        ba = bytearray(base64.b64decode(message)) #decode the file
-        f.write(ba)
+         #decode the file
+        f.write(message)
         f.close()
         with open(f'Files/{fileName}',"rb") as en:
             bytes = en.read() # read entire file as bytes
@@ -30,7 +38,8 @@ def upload(fileName):
                 dicnames[fileName] = readable_hash
                 os.remove(f'Files/{fileName}')
         time.sleep(1)
-        socket.send(f"File upload succesfully as {fileName}".encode())
+        # socket.send(f"File upload succesfully as {fileName}".encode())
+        socket.send_multipart
         print(f"{fileName} upload succesfully")
 
     except: 
@@ -52,6 +61,16 @@ def dowload(fileName):
     except:
         print("Error downloading file, maybe it doesn't exist or you are using a wrong extension")
         return
+def hashfile(fname):
+    sha1 = hashlib.sha1()
+
+    with open(fname, 'rb') as f:
+        while True:
+            data = f.read(BUF_SIZE)
+            if not data:
+                break
+            sha1.update(data)
+    return sha1.hexdigest()
 
 def createlist(newfilename):
     path = f"./{newfilename}"
@@ -107,6 +126,7 @@ def hashTableCheck():
         print(f'New files: {newFiles} and Deleted files: {deleteFiles}, without using the server.')
 
     newhashTable()
+    hashing.newhashTablejson(dicnames)
 
 def makealist():
     names = []
