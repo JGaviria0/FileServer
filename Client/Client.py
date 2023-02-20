@@ -47,12 +47,12 @@ def upload(socket, fileName):
 
     try: 
         f = open(fileName ,'rb')
-        bytes = bytearray(f.read())
-        strng = base64.b64encode(bytes)
-        socket.send(strng)
+        bytes = f.read()
+        #strng = base64.b64encode(bytes)
+        socket.send(bytes)
         f.close()
     except:
-        print("Error uploaading file, maybe it doesn't exist or you're using a wrong extention")
+        print("Error uploading file, maybe it doesn't exist or you're using a wrong extention")
         return
 
     message = socket.recv()

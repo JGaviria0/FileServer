@@ -1,3 +1,6 @@
 */Files
 Server/hashTable.txt
+Server/hashTable.json
 Client/
+*/__pycache__
+.env
