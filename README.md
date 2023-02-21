@@ -66,3 +66,14 @@ Run the client, open other terminal
     ```bash
     python3 Client/Client.py 192.168.1.1 5555 upload Test.txt
     ```
+ ## .env
+```bash
+BUF_SIZE=65536 #64KB on memory
+PRINCIPAL_PATH='./../'
+UPLOAD_TYPE='upload'
+DOWNLOAD_TYPE='download'
+SUBSCRIPTION_TYPE='subscrition'
+LIST_TYPE='list'
+MAIN_DIRECTORY='./Files/'
+NODES_PORT=4000
+```
