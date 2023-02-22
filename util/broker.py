@@ -31,6 +31,9 @@ def sendFile(header, Nodes):
     size = header["Size"]
 
     servers = len(Nodes)
+    if servers <= 1:
+        servers += 1
+    
     cs = size // (servers-1)
 
     hashes = []

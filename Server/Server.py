@@ -42,6 +42,7 @@ def upload(socket, header, binaryFile, Nodes):
     socket.send((f'{header["Name"]} {message}').encode())
     parts = broker.sendFile(header, Nodes)
     dicFilesUpload[header["Hash"]] = parts
+    os.remove(f'./Files/{header["Name"]}')
 
     # except:
     #     print("Error Uploading the file")
