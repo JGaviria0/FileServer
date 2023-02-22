@@ -37,6 +37,16 @@ def download(socket, fileName):
         ext = ""
     socketsRepo.saveFile(socket, f'{fileName}2.{ext}', bytes, path="")
 
+def thelist(socket, fileName): 
+    try: 
+        hs = header.getList()
+        hsJSON = json.dumps(hs)
+        socket.send_multipart([hsJSON, hsJSON])
+        message = socket.recv()
+        print(message.decode())
+    except: 
+        print("Error list the files.")
+
 def main():
     try: 
         _, ip, port, type, fileName= sys.argv
@@ -60,7 +70,7 @@ def main():
         return
 
     if type == LIST_TYPE:
-        # thelist(socket, fileName)
+        thelist(socket, fileName)
         return
 
     print("You didn't use the correct sintax")

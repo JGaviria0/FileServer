@@ -61,6 +61,13 @@ def download(socket, header):
     hsJSON = json.dumps(newhs).encode()
     socket.send_multipart([hsJSON, totalBytes])
 
+def makeList(socket): 
+    thelist = '''\n\n'''
+    for i in dicNames: 
+        thelist += f" - {i}\n "
+    
+    socket.send(thelist.encode())
+
     
 def main():
     
@@ -76,6 +83,9 @@ def main():
         
         if header["OperationType"] == DOWNLOAD_TYPE:
             download(socket, header)
+        
+        if header["OperationType"] == LIST_TYPE:
+            makeList(socket)
         
         if header["OperationType"] == SUBSCRIPTION_TYPE:
             Nodes.append([header["Ip"], header["Port"]])

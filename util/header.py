@@ -10,8 +10,15 @@ UPLOAD_TYPE = os.getenv('UPLOAD_TYPE')
 DOWNLOAD_TYPE = os.getenv('DOWNLOAD_TYPE')
 LIST_TYPE = os.getenv('LIST_TYPE')
 SUBSCRIPTION_TYPE = os.getenv('SUBSCRIPTION_TYPE')
-SUBSCRIPTION_TYPE = os.getenv('SUBSCRIPTION_TYPE')
 MAIN_DIRECTORY = os.getenv('MAIN_DIRECTORY')
+
+def getList(): 
+    header = {
+        "OperationType": LIST_TYPE,
+    }
+
+    return header
+
 
 def createHeader( fileName, operationType, hash="", path=MAIN_DIRECTORY ):
     fileSize = os.path.getsize(f"{path}{fileName}")
