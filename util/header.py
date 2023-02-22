@@ -17,8 +17,11 @@ def createHeader( fileName, operationType, hash="", path=MAIN_DIRECTORY ):
     fileSize = os.path.getsize(f"{path}{fileName}")
     if hash == "":
         hash = hashing.hashfile(fileName, path)
-    hostname=socket.gethostname()   
-    IPAddr=socket.gethostbyname(hostname) 
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    IPAddr = s.getsockname()[0]
+    print(IPAddr)
+    
     try:
         _, ext = fileName.split('.') 
     except:
