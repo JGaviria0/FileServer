@@ -20,7 +20,6 @@ def createHeader( fileName, operationType, hash="", path=MAIN_DIRECTORY ):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     IPAddr = s.getsockname()[0]
-    print(IPAddr)
     
     try:
         _, ext = fileName.split('.') 
@@ -41,8 +40,10 @@ def subscription(ip, port, portra):
     contextsub = zmq.Context()
     socketsub = contextsub.socket(zmq.REQ)
     socketsub.connect(f'tcp://{ip}:{port}')
-    hostname=socket.gethostname()   
-    IPAddr=socket.gethostbyname(hostname)
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    IPAddr = s.getsockname()[0]
+    print(IPAddr)
 
     header = {
         "OperationType" : SUBSCRIPTION_TYPE,
