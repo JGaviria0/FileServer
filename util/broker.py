@@ -11,7 +11,7 @@ MAIN_DIRECTORY = os.getenv('MAIN_DIRECTORY')
 
 
 def sendChunk(bytes, ip, port, header, size, npart):
-    ip = "localhost"
+    # ip = "localhost"
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
     socket.connect(f'tcp://{ip}:{port}')
