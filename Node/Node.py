@@ -1,4 +1,3 @@
-import time
 import zmq
 import random
 import json
@@ -13,8 +12,7 @@ DOWNLOAD_TYPE = os.getenv('DOWNLOAD_TYPE')
 LIST_TYPE = os.getenv('LIST_TYPE')
 
 sys.path.insert(0, PRINCIPAL_PATH)
-from util import hashing, socketsRepo, broker, header
-
+from util import socketsRepo, header
 
 context = zmq.Context()
 socket = context.socket(zmq.REP)
@@ -23,36 +21,43 @@ socket.bind(f"tcp://*:{portra}")
 print(portra)
 
 def subscribe(ip, port, portra):
-    contextsub = zmq.Context()
-    socketsub = contextsub.socket(zmq.REQ)
-    socketsub.connect(f'tcp://{ip}:{port}')
+    try: 
+        contextsub = zmq.Context()
+        socketsub = contextsub.socket(zmq.REQ)
+        socketsub.connect(f'tcp://{ip}:{port}')
 
-    hs = header.subscription(ip, port, portra)
+        hs = header.subscription(ip, port, portra)
 
-    headerJSON = json.dumps(hs).encode()
+        headerJSON = json.dumps(hs).encode()
 
-    socketsub.send_multipart([headerJSON, headerJSON])
+        socketsub.send_multipart([headerJSON, headerJSON])
 
-    message = socketsub.recv().decode()
-    print(message)
-    socketsub.close()
+        message = socketsub.recv().decode()
+        print(message)
+        socketsub.close()
+    except Exception as e: 
+        print(e)
+        print("Not possible to connect to the server.")
 
 def main():
     _, ip, port = sys.argv
     subscribe(ip, port, portra)
 
-
     while True:
-        #  Wait for next request from client
-        headerJSON, binaryFile = socket.recv_multipart()
-        heade = json.loads(headerJSON)
-        print(heade)
-        fileName = heade["Name"]
+        try: 
+            headerJSON, binaryFile = socket.recv_multipart()
+            heade = json.loads(headerJSON)
+            print(heade)
+            fileName = heade["Name"]
+        except Exception as e: 
+            print(e)
+            print("Error: Can't receive the file.")
+
 
         if heade["OperationType"] == UPLOAD_TYPE:
             hash = heade["Hash"]
             print(f"upload file: {fileName} hash: {hash}")
-            socketsRepo.saveFile(socket, hash, binaryFile)
+            socketsRepo.saveFile(hash, binaryFile)
             socket.send(b"Nice")
         
         if heade["OperationType"] == DOWNLOAD_TYPE:

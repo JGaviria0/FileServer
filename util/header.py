@@ -1,8 +1,6 @@
 import os
-import zmq
 from util import hashing
 import socket
-import json
 from dotenv import load_dotenv
 
 load_dotenv()

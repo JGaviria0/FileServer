@@ -22,7 +22,8 @@ def upload(socket, fileName):
         socketsRepo.sendFile(socket, fileName, hsJSON, path="")
         response = socket.recv().decode()
         print(response)
-    except: 
+    except Exception as e: 
+        print(e)
         print("Error uploading the file, the file doesn't exist.")
 
 def download(socket, fileName):
@@ -30,22 +31,23 @@ def download(socket, fileName):
     hs = header.getFile(fileName)
     hsJSON = json.dumps(hs).encode()
     socket.send_multipart([hsJSON, hsJSON])
-    fullfilename, bytes = socket.recv_multipart()
+    _, bytes = socket.recv_multipart()
     try: 
         fileName, ext = fileName.split('.')
     except:
         ext = ""
-    socketsRepo.saveFile(socket, f'{fileName}2.{ext}', bytes, path="")
+    res = socketsRepo.saveFile( f'{fileName}2.{ext}', bytes, path="") 
+    print(res)   
 
 def thelist(socket, fileName): 
-    # try: 
+    try: 
         hs = header.getList()
         hsJSON = json.dumps(hs).encode()
         socket.send_multipart([hsJSON, hsJSON])
         message = socket.recv()
         print(message.decode())
-    # except: 
-    #     print("Error list the files.")
+    except: 
+        print("Error list the files.")
 
 def main():
     try: 

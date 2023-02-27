@@ -30,7 +30,7 @@ def sendFile(header, Nodes):
     size = header["Size"]
 
     servers = len(Nodes)
-    if servers <= 1:
+    if servers == 1:
         servers += 1
     
     cs = size // (servers-1)
@@ -60,7 +60,7 @@ def getFile(ip, port, fileName):
 
     socket.send_multipart([headerJSON, headerJSON])
 
-    headerJSON, message = socket.recv_multipart()
+    headerJSON, bytes = socket.recv_multipart()
 
-    return message
+    return bytes
     
