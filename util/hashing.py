@@ -1,4 +1,3 @@
-import json
 import hashlib
 import os
 from dotenv import load_dotenv

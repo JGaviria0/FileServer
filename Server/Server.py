@@ -13,6 +13,7 @@ SUBSCRIPTION_TYPE = os.getenv('SUBSCRIPTION_TYPE')
 
 sys.path.insert(0, PRINCIPAL_PATH)
 from util import hashing, socketsRepo, broker
+from util import header as hs
 
 # From: https://zeromq.org/get-started/?language=python&library=pyzmq#
 context = zmq.Context()
@@ -25,7 +26,7 @@ dicFilesUpload = {}
 def upload(socket, header, binaryFile, Nodes):
     global dicFilesUpload
     global dicNames
-    
+
     try:
         print(f'Saving file {header["Name"]} with hash {header["Hash"]} and size of {header["Size"]}.')
         
@@ -53,7 +54,7 @@ def download(socket, header):
             fileName, ip, port = parts
             bytes = broker.getFile(ip, port, fileName)
             totalBytes += bytes
-        newhs = hashing.getFile(header["Name"])
+        newhs = hs.getFile(header["Name"])
         hsJSON = json.dumps(newhs).encode()
         socket.send_multipart([hsJSON, totalBytes])
     except Exception as e: 
