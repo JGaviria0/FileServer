@@ -19,11 +19,12 @@ def getList():
 
     return header
 
-
 def createHeader( fileName, operationType, hash="", path=MAIN_DIRECTORY ):
     fileSize = os.path.getsize(f"{path}{fileName}")
     if hash == "":
         hash = hashing.hashfile(fileName, path)
+
+    #https://www.c-sharpcorner.com/blogs/how-to-find-ip-address-in-python
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     IPAddr = s.getsockname()[0]
@@ -44,9 +45,8 @@ def createHeader( fileName, operationType, hash="", path=MAIN_DIRECTORY ):
     return header
 
 def subscription(ip, port, portra):
-    contextsub = zmq.Context()
-    socketsub = contextsub.socket(zmq.REQ)
-    socketsub.connect(f'tcp://{ip}:{port}')
+    
+    # https://www.c-sharpcorner.com/blogs/how-to-find-ip-address-in-python
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     IPAddr = s.getsockname()[0]
@@ -58,13 +58,7 @@ def subscription(ip, port, portra):
         "Port": portra
     }
 
-    headerJSON = json.dumps(header).encode()
-
-    socketsub.send_multipart([headerJSON, headerJSON])
-
-    message = socketsub.recv().decode()
-    print(message)
-    socketsub.close()
+    return header
 
 def getFile(fileName):
 
@@ -74,4 +68,3 @@ def getFile(fileName):
     }
 
     return header
-

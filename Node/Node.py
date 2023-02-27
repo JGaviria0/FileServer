@@ -22,9 +22,24 @@ portra = random.randint(4000, 5554)
 socket.bind(f"tcp://*:{portra}")
 print(portra)
 
+def subscribe(ip, port, portra):
+    contextsub = zmq.Context()
+    socketsub = contextsub.socket(zmq.REQ)
+    socketsub.connect(f'tcp://{ip}:{port}')
+
+    hs = header.subscription(ip, port, portra)
+
+    headerJSON = json.dumps(hs).encode()
+
+    socketsub.send_multipart([headerJSON, headerJSON])
+
+    message = socketsub.recv().decode()
+    print(message)
+    socketsub.close()
+
 def main():
     _, ip, port = sys.argv
-    header.subscription(ip, port, portra)
+    subscribe(ip, port, portra)
 
 
     while True:
