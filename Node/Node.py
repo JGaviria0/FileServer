@@ -10,6 +10,7 @@ PRINCIPAL_PATH = os.getenv('PRINCIPAL_PATH')
 UPLOAD_TYPE = os.getenv('UPLOAD_TYPE')
 DOWNLOAD_TYPE = os.getenv('DOWNLOAD_TYPE')
 LIST_TYPE = os.getenv('LIST_TYPE')
+SEND_TYPE = os.getenv('SEND_TYPE')
 
 sys.path.insert(0, PRINCIPAL_PATH)
 from util import socketsRepo, header
@@ -43,21 +44,21 @@ def main():
     subscribe(ip, port, portra)
 
     while True:
-        try: 
-            headerJSON, binaryFile = socket.recv_multipart()
-            heade = json.loads(headerJSON)
-            print(heade)
-            fileName = heade["Name"]
-        except Exception as e: 
-            print(e)
-            print("Error: Can't receive the file.")
+        # try: 
+        headerJSON, binaryFile = socket.recv_multipart()
+        heade = json.loads(headerJSON)
+        print(heade)
+        fileName = heade["Name"]
+        # except Exception as e: 
+        #     print(e)
+        #     print("Error: Can't receive the file.")
 
 
-        if heade["OperationType"] == UPLOAD_TYPE:
+        if heade["OperationType"] == SEND_TYPE:
             hash = heade["Hash"]
             print(f"upload file: {fileName} hash: {hash}")
-            socketsRepo.saveFile(hash, binaryFile)
-            socket.send(b"Nice")
+            message = socketsRepo.saveFile(hash, binaryFile)
+            socket.send(message.encode())
         
         if heade["OperationType"] == DOWNLOAD_TYPE:
             hs = header.createHeader(fileName, DOWNLOAD_TYPE)

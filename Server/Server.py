@@ -1,3 +1,4 @@
+from django.http import response
 import zmq
 import sys
 import json
@@ -10,7 +11,8 @@ UPLOAD_TYPE = os.getenv('UPLOAD_TYPE')
 DOWNLOAD_TYPE = os.getenv('DOWNLOAD_TYPE')
 LIST_TYPE = os.getenv('LIST_TYPE')
 SUBSCRIPTION_TYPE = os.getenv('SUBSCRIPTION_TYPE')
-GET_DATA_TYPE = os.getenv('GET_DATA_TYPE')
+GET_UPLOAD_DATA_TYPE = os.getenv('GET_UPLOAD_DATA_TYPE')
+GET_DOWNLOAD_DATA_TYPE = os.getenv('GET_DOWNLOAD_DATA_TYPE')
 FILE_SAVED = os.getenv('FILE_SAVED')
 
 sys.path.insert(0, PRINCIPAL_PATH)
@@ -31,6 +33,7 @@ def getDataToUpload(socket, header, Nodes):
         print(f'Get Data to save the file {header["Name"]}.')
 
         if header["Hash"] in dicFilesUpload:
+            
             response = hs.alreadyExistHeader()
             hsJSON = json.dumps(response).encode()
             socket.send(hsJSON)
@@ -45,6 +48,26 @@ def getDataToUpload(socket, header, Nodes):
         print("Error Uploading the file")
         socket.send((f'{header["Name"]} Error uploading').encode())
 
+def getDataToDownload(socket, header, Nodes):
+
+    try:
+        print(f'Get Data to download the file {header["Name"]}.')
+
+        if header["Name"] in dicNames: 
+            response = hs.downloadFileHeader(dicFilesUpload[dicNames[header["Name"]]])
+            hsJSON = json.dumps(response).encode()
+            socket.send(hsJSON)
+            return
+
+        response = hs.DoesntExistHeader()
+        hsJSON = json.dumps(response).encode()
+        socket.send(hsJSON)
+
+    except Exception as e: 
+        print(e)
+        print("Error geting data to the file")
+        socket.send((f'{header["Name"]} Error geting data').encode())
+
 def upload(header):
     global dicFilesUpload
     global dicNames
@@ -54,21 +77,21 @@ def upload(header):
     dicFilesUpload[header["Hash"]] = header["Parts"]
     socket.send(b"All sended succesfully")
 
-def download(socket, header):
-    try: 
-        print(dicNames)
-        hash = dicNames[header["Name"]]
-        totalBytes = b''
-        for parts in dicFilesUpload[hash]:
-            fileName, ip, port = parts
-            bytes = broker.getFile(ip, port, fileName)
-            totalBytes += bytes
-        newhs = hs.getFile(header["Name"])
-        hsJSON = json.dumps(newhs).encode()
-        socket.send_multipart([hsJSON, totalBytes])
-    except Exception as e: 
-        print(e)
-        print("Error download the file")
+# def download(socket, header):
+#     try: 
+#         print(dicNames)
+#         hash = dicNames[header["Name"]]
+#         totalBytes = b''
+#         for parts in dicFilesUpload[hash]:
+#             fileName, ip, port = parts
+#             bytes = broker.getFile(ip, port, fileName)
+#             totalBytes += bytes
+#         newhs = hs.getFile(header["Name"])
+#         hsJSON = json.dumps(newhs).encode()
+#         socket.send_multipart([hsJSON, totalBytes])
+#     except Exception as e: 
+#         print(e)
+#         print("Error download the file")
 
 def makeList(socket): 
     thelist = '''\n\n'''
@@ -82,20 +105,17 @@ def main():
     Nodes = []
         
     while True: 
-        # try: 
-        #     headerJSON, binaryFile = socket.recv_multipart()
-        # except: 
         headerJSON = socket.recv()
         header = json.loads(headerJSON)
 
-        if header["OperationType"] == GET_DATA_TYPE:
+        if header["OperationType"] == GET_UPLOAD_DATA_TYPE:
             getDataToUpload(socket, header, Nodes)
+
+        if header["OperationType"] == GET_DOWNLOAD_DATA_TYPE:
+            getDataToDownload(socket, header, Nodes)
 
         if header["OperationType"] == FILE_SAVED:
             upload(header)
-        
-        if header["OperationType"] == DOWNLOAD_TYPE:
-            download(socket, header)
         
         if header["OperationType"] == LIST_TYPE:
             makeList(socket)

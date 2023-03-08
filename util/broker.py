@@ -11,20 +11,26 @@ MAIN_DIRECTORY = os.getenv('MAIN_DIRECTORY')
 BUF_SIZE = int(os.getenv('BUF_SIZE'))
 
 
-def sendChunk(bytes, ip, port, header, size, npart):
+
+def sendChunk(bytes, ip, port, hs, size, npart):
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
     socket.connect(f'tcp://{ip}:{port}')
+
     hash = hashlib.sha256()
     hash.update(bytes)
     hashPart = hash.hexdigest()
-    fullFileName = header["Name"].split('.')
-    header["Name"] = f"{fullFileName[0]}{npart}"
-    header["Hash"] = hashPart
-    header["Size"] = size
-    headerJSON = json.dumps(header).encode()
+
+    fullFileName = hs["Name"].split('.')
+    fielName = f"{fullFileName[0]}{npart}"
+    hsJSON = header.sendChunkHeader(fielName, hashPart, size)
+    headerJSON = json.dumps(hsJSON).encode()
+
     socket.send_multipart([headerJSON, bytes])
-    print(ip, port, header["Name"])
+    message = socket.recv()
+
+    print(message.decode(), end="")
+    print(ip, port, fielName)
     return hashPart
 
 def sendFile(header, Nodes):
@@ -39,13 +45,13 @@ def sendFile(header, Nodes):
     with open(f'{fullFileName}', 'rb') as inputFile:
         for parts in range(cs):
             bytes = inputFile.read(BUF_SIZE)
-
+            eachsize = BUF_SIZE
             if parts == cs-1:
-                cs = size%(BUF_SIZE)
+                eachsize = size%(BUF_SIZE)
                 if cs == 0:
                     break
             whichNode = parts%nNodes
-            newhash = sendChunk(bytes, Nodes[whichNode][0], Nodes[whichNode][1], header.copy(), cs, parts)
+            newhash = sendChunk(bytes, Nodes[whichNode][0], Nodes[whichNode][1], header.copy(), eachsize, parts)
             hashes.append([newhash,  Nodes[whichNode][0], Nodes[whichNode][1]])
 
     return hashes

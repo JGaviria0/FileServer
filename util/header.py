@@ -1,10 +1,9 @@
+from email import header
 import os
 from util import hashing
 import socket
 from dotenv import load_dotenv
 import random
-
-
 
 load_dotenv()
 UPLOAD_TYPE = os.getenv('UPLOAD_TYPE')
@@ -13,8 +12,11 @@ LIST_TYPE = os.getenv('LIST_TYPE')
 SUBSCRIPTION_TYPE = os.getenv('SUBSCRIPTION_TYPE')
 MAIN_DIRECTORY = os.getenv('MAIN_DIRECTORY')
 SEND_FILE_CODE = os.getenv('SEND_FILE_CODE')
+DOWNLOAD_FILE_CODE = os.getenv('DOWNLOAD_FILE_CODE')
 FILE_ALREADY_EXITS_CODE = os.getenv('FILE_ALREADY_EXITS_CODE')
 FILE_SAVED = os.getenv('FILE_SAVED')
+SEND_TYPE = os.getenv('SEND_TYPE')
+GET_UPLOAD_DATA_TYPE = os.getenv('GET_UPLOAD_DATA_TYPE')
 
 def getList(): 
     header = {
@@ -55,6 +57,13 @@ def alreadyExistHeader():
     }
     return header
 
+def DoesntExistHeader():
+    header = {
+        "Response": FILE_ALREADY_EXITS_CODE,
+        "Message": "The file doesn't exists."
+    }
+    return header
+
 def sendFileHeader(nodes):
     random.shuffle(nodes)
 
@@ -65,9 +74,20 @@ def sendFileHeader(nodes):
     }
     return header
 
-def getDataHeader( fileName, operationType, hash="", path=MAIN_DIRECTORY ):
-    fileSize = os.path.getsize(f"{path}{fileName}")
-    if hash == "":
+def downloadFileHeader(parts):
+
+    header = {
+        "Response": DOWNLOAD_FILE_CODE,
+        "Message": "Download the file for this Nodes", 
+        "Parts" : parts
+    }
+    return header
+
+def getDataHeader( fileName, operationType, path=MAIN_DIRECTORY ):
+    hash = None
+    fileSize = None
+    if operationType == GET_UPLOAD_DATA_TYPE:
+        fileSize = os.path.getsize(f"{path}{fileName}")
         hash = hashing.hashfile(fileName, path)
 
     header = {
@@ -111,6 +131,17 @@ def getFile(fileName):
     header = {
         "OperationType" : DOWNLOAD_TYPE,
         "Name": fileName
+    }
+
+    return header
+
+def sendChunkHeader(name, hash, size):
+
+    header = {
+        "OperationType": SEND_TYPE,
+        "Name": name,
+        "Size": size,
+        "Hash": hash
     }
 
     return header
