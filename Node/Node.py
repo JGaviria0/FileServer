@@ -29,9 +29,8 @@ def subscribe(ip, port, portra):
         hs = header.subscription(ip, port, portra)
 
         headerJSON = json.dumps(hs).encode()
-
-        socketsub.send_multipart([headerJSON, headerJSON])
-
+        socketsub.send(headerJSON)
+        
         message = socketsub.recv().decode()
         print(message)
         socketsub.close()

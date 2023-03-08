@@ -8,6 +8,7 @@ from util import header
 load_dotenv()
 NODES_PORT = os.getenv('NODES_PORT')
 MAIN_DIRECTORY = os.getenv('MAIN_DIRECTORY')
+BUF_SIZE = int(os.getenv('BUF_SIZE'))
 
 
 def sendChunk(bytes, ip, port, header, size, npart):
@@ -23,30 +24,29 @@ def sendChunk(bytes, ip, port, header, size, npart):
     header["Size"] = size
     headerJSON = json.dumps(header).encode()
     socket.send_multipart([headerJSON, bytes])
+    print(ip, port, header["Name"])
     return hashPart
 
 def sendFile(header, Nodes):
+    
     fullFileName = header["Name"]
     size = header["Size"]
-
-    servers = len(Nodes)
-    if servers == 1:
-        servers += 1
     
-    cs = size // (servers-1)
-
+    cs = (size // BUF_SIZE)+1
+    nNodes = len(Nodes)
     hashes = []
-    nParts = 0
-    with open(f'{MAIN_DIRECTORY}{fullFileName}', 'rb') as inputFile:
-        for ip in Nodes:
-            nParts += 1
-            bytes = inputFile.read(cs)
-            if nParts == servers:
-                cs = size%(servers-1)
+
+    with open(f'{fullFileName}', 'rb') as inputFile:
+        for parts in range(cs):
+            bytes = inputFile.read(BUF_SIZE)
+
+            if parts == cs-1:
+                cs = size%(BUF_SIZE)
                 if cs == 0:
                     break
-            newhash = sendChunk(bytes, ip[0], ip[1], header.copy(), cs, nParts)
-            hashes.append([newhash, ip[0], ip[1]])
+            whichNode = parts%nNodes
+            newhash = sendChunk(bytes, Nodes[whichNode][0], Nodes[whichNode][1], header.copy(), cs, parts)
+            hashes.append([newhash,  Nodes[whichNode][0], Nodes[whichNode][1]])
 
     return hashes
 

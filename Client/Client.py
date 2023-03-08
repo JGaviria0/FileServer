@@ -7,24 +7,36 @@ import json
 load_dotenv()
 # env variables
 PRINCIPAL_PATH = os.getenv('PRINCIPAL_PATH')
+GET_DATA_TYPE = os.getenv('GET_DATA_TYPE')
 UPLOAD_TYPE = os.getenv('UPLOAD_TYPE')
 DOWNLOAD_TYPE = os.getenv('DOWNLOAD_TYPE')
 LIST_TYPE = os.getenv('LIST_TYPE')
 
 # Modules
 sys.path.insert(0, PRINCIPAL_PATH)
-from util import header, socketsRepo
+from util import header, socketsRepo, broker
 
-def upload(socket, fileName):
-    try:
-        hs = header.createHeader(fileName, UPLOAD_TYPE, path="")
-        hsJSON = json.dumps(hs).encode()
-        socketsRepo.sendFile(socket, fileName, hsJSON, path="")
-        response = socket.recv().decode()
-        print(response)
-    except Exception as e: 
-        print(e)
-        print("Error uploading the file, the file doesn't exist.")
+def getData(socket, fileName):
+    # try:
+    hs = header.getDataHeader(fileName, GET_DATA_TYPE, path="")
+    hsJSON = json.dumps(hs).encode()
+    socket.send(hsJSON)
+    response = socket.recv().decode()
+    print(response)
+    resposeJSON = json.loads(response)
+    return hs, resposeJSON
+    # except Exception as e: 
+    #     print(e)
+    #     print("Error geting nodes data")
+
+def upload(socket, headerJSON, res):    
+    hashes = broker.sendFile(headerJSON, res["Nodes"])
+    hs = header.fileSavedHeader(hashes, headerJSON)
+    hsJSON = json.dumps(hs).encode()
+    socket.send(hsJSON)
+
+    response = socket.recv().decode()
+    print(response)
 
 def download(socket, fileName):
 
@@ -64,7 +76,8 @@ def main():
     socket.connect(f"tcp://{ip}:{port}")
 
     if type == UPLOAD_TYPE:
-        upload(socket, fileName)
+        head, res = getData(socket, fileName)
+        upload(socket, head, res)
         return 
     
     if type == DOWNLOAD_TYPE:

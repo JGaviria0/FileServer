@@ -2,6 +2,9 @@ import os
 from util import hashing
 import socket
 from dotenv import load_dotenv
+import random
+
+
 
 load_dotenv()
 UPLOAD_TYPE = os.getenv('UPLOAD_TYPE')
@@ -9,6 +12,9 @@ DOWNLOAD_TYPE = os.getenv('DOWNLOAD_TYPE')
 LIST_TYPE = os.getenv('LIST_TYPE')
 SUBSCRIPTION_TYPE = os.getenv('SUBSCRIPTION_TYPE')
 MAIN_DIRECTORY = os.getenv('MAIN_DIRECTORY')
+SEND_FILE_CODE = os.getenv('SEND_FILE_CODE')
+FILE_ALREADY_EXITS_CODE = os.getenv('FILE_ALREADY_EXITS_CODE')
+FILE_SAVED = os.getenv('FILE_SAVED')
 
 def getList(): 
     header = {
@@ -40,6 +46,48 @@ def createHeader( fileName, operationType, hash="", path=MAIN_DIRECTORY ):
         "Ext": ext
     }
 
+    return header
+
+def alreadyExistHeader():
+    header = {
+        "Response": FILE_ALREADY_EXITS_CODE,
+        "Message": "The file already exists."
+    }
+    return header
+
+def sendFileHeader(nodes):
+    random.shuffle(nodes)
+
+    header = {
+        "Response": SEND_FILE_CODE,
+        "Message": "Send the file to this Nodes", 
+        "Nodes" : nodes
+    }
+    return header
+
+def getDataHeader( fileName, operationType, hash="", path=MAIN_DIRECTORY ):
+    fileSize = os.path.getsize(f"{path}{fileName}")
+    if hash == "":
+        hash = hashing.hashfile(fileName, path)
+
+    header = {
+        "OperationType": operationType,
+        "Name": fileName,
+        "Size": fileSize,
+        "Hash": hash
+    }
+
+    return header
+
+def fileSavedHeader(parts, hs):
+
+    header = {
+        "OperationType": FILE_SAVED,
+        "Name": hs["Name"],
+        "Size": hs["Size"],
+        "Hash": hs["Hash"],
+        "Parts": parts
+    }
     return header
 
 def subscription(ip, port, portra):

@@ -10,6 +10,8 @@ UPLOAD_TYPE = os.getenv('UPLOAD_TYPE')
 DOWNLOAD_TYPE = os.getenv('DOWNLOAD_TYPE')
 LIST_TYPE = os.getenv('LIST_TYPE')
 SUBSCRIPTION_TYPE = os.getenv('SUBSCRIPTION_TYPE')
+GET_DATA_TYPE = os.getenv('GET_DATA_TYPE')
+FILE_SAVED = os.getenv('FILE_SAVED')
 
 sys.path.insert(0, PRINCIPAL_PATH)
 from util import hashing, socketsRepo, broker
@@ -23,27 +25,34 @@ socket.bind("tcp://*:5555")
 dicNames = {}
 dicFilesUpload = {}
 
-def upload(socket, header, binaryFile, Nodes):
-    global dicFilesUpload
-    global dicNames
+def getDataToUpload(socket, header, Nodes):
 
     try:
-        print(f'Saving file {header["Name"]} with hash {header["Hash"]} and size of {header["Size"]}.')
-        
-        dicNames[header["Name"]] = header["Hash"]
+        print(f'Get Data to save the file {header["Name"]}.')
+
         if header["Hash"] in dicFilesUpload:
-            socket.send((f'{header["Name"]} Uploading').encode())
+            response = hs.alreadyExistHeader()
+            hsJSON = json.dumps(response).encode()
+            socket.send(hsJSON)
             return
-        message = socketsRepo.saveFile(header["Name"], binaryFile)
-        socket.send((f'{header["Name"]} {message}').encode())
-        parts = broker.sendFile(header, Nodes)
-        dicFilesUpload[header["Hash"]] = parts
-        os.remove(f'./Files/{header["Name"]}')
+        
+        response = hs.sendFileHeader(Nodes)
+        hsJSON = json.dumps(response).encode()
+        socket.send(hsJSON)
 
     except Exception as e: 
         print(e)
         print("Error Uploading the file")
         socket.send((f'{header["Name"]} Error uploading').encode())
+
+def upload(header):
+    global dicFilesUpload
+    global dicNames
+
+    print(f'Saving file {header["Name"]} with hash {header["Hash"]} and size of {header["Size"]}.')
+    dicNames[header["Name"]] = header["Hash"]
+    dicFilesUpload[header["Hash"]] = header["Parts"]
+    socket.send(b"All sended succesfully")
 
 def download(socket, header):
     try: 
@@ -73,12 +82,17 @@ def main():
     Nodes = []
         
     while True: 
-
-        headerJSON, binaryFile = socket.recv_multipart()
+        # try: 
+        #     headerJSON, binaryFile = socket.recv_multipart()
+        # except: 
+        headerJSON = socket.recv()
         header = json.loads(headerJSON)
 
-        if header["OperationType"] == UPLOAD_TYPE:
-            upload(socket, header, binaryFile, Nodes)
+        if header["OperationType"] == GET_DATA_TYPE:
+            getDataToUpload(socket, header, Nodes)
+
+        if header["OperationType"] == FILE_SAVED:
+            upload(header)
         
         if header["OperationType"] == DOWNLOAD_TYPE:
             download(socket, header)
