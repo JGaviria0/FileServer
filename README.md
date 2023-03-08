@@ -76,10 +76,19 @@ Run the client, open other terminal
     ```
  ## .env
 ```bash
-BUF_SIZE=65536 #64KB on memory
+BUF_SIZE=10485760  #10MB on memory
 PRINCIPAL_PATH='./../'
 UPLOAD_TYPE='upload'
+GET_DATA_TYPE='getData'
 DOWNLOAD_TYPE='download'
 SUBSCRIPTION_TYPE='subscrition'
+FILE_SAVED='saved'
 LIST_TYPE='list'
 MAIN_DIRECTORY='./Files/'
+NODES_PORT=4000
+
+#codes:
+SEND_FILE_CODE=200
+FILE_ALREADY_EXITS_CODE=201
+
+```
