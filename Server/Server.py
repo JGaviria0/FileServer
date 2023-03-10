@@ -1,3 +1,4 @@
+from unicodedata import name
 from django.http import response
 import zmq
 import sys
@@ -33,7 +34,7 @@ def getDataToUpload(socket, header, Nodes):
         print(f'Get Data to save the file {header["Name"]}.')
 
         if header["Hash"] in dicFilesUpload:
-            
+            dicNames[header["Name"]] = header["Hash"]
             response = hs.alreadyExistHeader()
             hsJSON = json.dumps(response).encode()
             socket.send(hsJSON)
