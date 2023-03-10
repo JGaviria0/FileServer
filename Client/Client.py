@@ -45,20 +45,18 @@ def upload(socket, headerJSON, res):
     print(response)
 
 def getDataDownload(socket, fileName): 
-
-    # try:
-    hs = header.getDataHeader(fileName, GET_DOWNLOAD_DATA_TYPE, path="")
-    print(hs)
-    hsJSON = json.dumps(hs).encode()
-    socket.send(hsJSON)
-    response = socket.recv().decode()
-    print(response)
-    resposeJSON = json.loads(response)
-    return hs, resposeJSON
-    
-    # except Exception as e: 
-    #     print(e)
-    #     print("Error geting nodes data")
+    try:
+        hs = header.getDataHeader(fileName, GET_DOWNLOAD_DATA_TYPE, path="")
+        print(hs)
+        hsJSON = json.dumps(hs).encode()
+        socket.send(hsJSON)
+        response = socket.recv().decode()
+        print(response)
+        resposeJSON = json.loads(response)
+        return hs, resposeJSON  
+    except Exception as e: 
+        print(e)
+        print("Error geting download data")
 
 def download(head, res):
 
