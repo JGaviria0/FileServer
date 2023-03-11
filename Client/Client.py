@@ -18,6 +18,7 @@ FILE_ALREADY_EXITS_CODE = os.getenv('FILE_ALREADY_EXITS_CODE')
 # Modules
 sys.path.insert(0, PRINCIPAL_PATH)
 from util import header, socketsRepo, broker
+context = zmq.Context()
 
 def getDataUpload(socket, fileName):
     try:
@@ -60,12 +61,25 @@ def getDataDownload(socket, fileName):
 
 def download(head, res):
 
+    ips = {}
+
+    for parts in res["Parts"]:
+        key = f"{parts[1]}:{parts[2]}"
+        if not key in ips: 
+            socket = context.socket(zmq.REQ)
+            socket.connect(f"tcp://{key}")
+            ips[key] = socket
+
+    print (ips)
+
     totalBytes = b"" 
     for parts in res["Parts"]:
         fileName, ip, port = parts
         print(parts)
-        bytes = broker.getFile(ip, port, fileName)
+        key = f"{ip}:{port}"
+        bytes = broker.getFile(ips[key], fileName)
         totalBytes += bytes
+    
     try: 
         fileName, ext = head["Name"].split('.')
     except:
@@ -89,8 +103,6 @@ def main():
     except:
         _, ip, port, type = sys.argv
         fileName = ""
-
-    context = zmq.Context()
 
     #  Socket to talk to server
     print("Connecting to the file server…")

@@ -1,5 +1,3 @@
-from unicodedata import name
-from django.http import response
 import zmq
 import sys
 import json
@@ -77,22 +75,6 @@ def upload(header):
     dicNames[header["Name"]] = header["Hash"]
     dicFilesUpload[header["Hash"]] = header["Parts"]
     socket.send(b"All sended succesfully")
-
-# def download(socket, header):
-#     try: 
-#         print(dicNames)
-#         hash = dicNames[header["Name"]]
-#         totalBytes = b''
-#         for parts in dicFilesUpload[hash]:
-#             fileName, ip, port = parts
-#             bytes = broker.getFile(ip, port, fileName)
-#             totalBytes += bytes
-#         newhs = hs.getFile(header["Name"])
-#         hsJSON = json.dumps(newhs).encode()
-#         socket.send_multipart([hsJSON, totalBytes])
-#     except Exception as e: 
-#         print(e)
-#         print("Error download the file")
 
 def makeList(socket): 
     thelist = '''\n\n'''
