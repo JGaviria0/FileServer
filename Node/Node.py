@@ -43,14 +43,14 @@ def main():
     subscribe(ip, port, portra)
 
     while True:
-        # try: 
-        headerJSON, binaryFile = socket.recv_multipart()
-        heade = json.loads(headerJSON)
-        print(heade)
-        fileName = heade["Name"]
-        # except Exception as e: 
-        #     print(e)
-        #     print("Error: Can't receive the file.")
+        try: 
+            headerJSON, binaryFile = socket.recv_multipart()
+            heade = json.loads(headerJSON)
+            print(heade)
+            fileName = heade["Name"]
+        except Exception as e: 
+            print(e)
+            print("Error: Can't receive the file.")
 
 
         if heade["OperationType"] == SEND_TYPE:

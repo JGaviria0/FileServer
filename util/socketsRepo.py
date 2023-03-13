@@ -15,12 +15,12 @@ def sendFile(socket, fileName, header, path=MAIN_DIRECTORY):
         print("Error sending the file.")
 
 def saveFile(fileName, binaryFile, path=MAIN_DIRECTORY):
-    # try:
+    try:
         f = open(f"{path}{fileName}", 'wb')
         f.write(binaryFile)
         f.close()
         return "Saving succesfully: "
-    # except Exception as e: 
-    #     print(e)
-    #     print("Error saving file.")
-    #     return ": Error saving the file."
+    except Exception as e: 
+        print(e)
+        print("Error saving file.")
+        return ": Error saving the file."
