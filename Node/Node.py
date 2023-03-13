@@ -16,10 +16,7 @@ sys.path.insert(0, PRINCIPAL_PATH)
 from util import socketsRepo, header
 
 context = zmq.Context()
-socket = context.socket(zmq.REP)
-portra = random.randint(4000, 5554)
-socket.bind(f"tcp://*:{portra}")
-print(portra)
+
 
 def subscribe(ip, port, portra):
     try: 
@@ -40,7 +37,10 @@ def subscribe(ip, port, portra):
         print("Not possible to connect to the server.")
 
 def main():
-    _, ip, port = sys.argv
+    _, ip, port, portra = sys.argv
+    socket = context.socket(zmq.REP)
+    socket.bind(f"tcp://*:{portra}")
+    print(portra)
     subscribe(ip, port, portra)
 
     while True:
