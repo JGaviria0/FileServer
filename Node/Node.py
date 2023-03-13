@@ -20,8 +20,7 @@ context = zmq.Context()
 
 def subscribe(ip, port, portra):
     try: 
-        contextsub = zmq.Context()
-        socketsub = contextsub.socket(zmq.REQ)
+        socketsub = context.socket(zmq.REQ)
         socketsub.connect(f'tcp://{ip}:{port}')
 
         hs = header.subscription(ip, port, portra)
